@@ -1,9 +1,6 @@
 from typing import List, Iterable
 
-from src.model_checker.Event import Event
-from src.model_checker.MagicModel import MagicModel
-from src.model_checker.State import State
-from src.model_checker.Validator import Validator
+from src.model_checker import *
 
 insurance_price = 10
 compensation = 1000

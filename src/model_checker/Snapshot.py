@@ -1,4 +1,3 @@
-from src.model_checker.FiniteStateMachine import FiniteStateMachine
 from src.model_checker.State import State
 
 
