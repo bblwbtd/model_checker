@@ -1,4 +1,4 @@
-from typing import List
+from typing import Iterable
 
 from src.model_checker.Event import Event
 from src.model_checker.State import State
@@ -6,7 +6,7 @@ from src.model_checker.State import State
 
 class FiniteStateMachine:
 
-    def __init__(self, events: List[Event], states: List[State]):
+    def __init__(self, events: Iterable[Event], states: Iterable[State]):
 
         self.__event_map = {
             event.name: event

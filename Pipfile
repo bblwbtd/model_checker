@@ -1,0 +1,11 @@
+[[source]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+verify_ssl = true
+name = "tuna"
+
+[packages]
+flask = "*"
+peewee = "*"
+
+[requires]
+python_version = "3.8"

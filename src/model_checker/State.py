@@ -26,4 +26,3 @@ class State:
 
     def add_outbound(self, event: Event):
         self.outbound[event.name] = event
-

@@ -1,9 +1,9 @@
 class Event:
-    def __init__(self, name: str, src, des, on_event=None, args=None):
-        if args is None:
-            self.args = {}
+    def __init__(self, name: str, src, des, on_event=None, variable=None):
+        if variable is None:
+            self.variable = {}
         else:
-            self.args = args
+            self.variable = variable
         self._on_event_callback = on_event
         self.name = name
         self.src = src
@@ -11,7 +11,7 @@ class Event:
 
     def on_event(self):
         if self._on_event_callback is not None:
-            self._on_event_callback(*self.args)
+            self._on_event_callback(self.variable)
 
     def __dict__(self):
         return {

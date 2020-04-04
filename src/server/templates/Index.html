@@ -1,0 +1,42 @@
+{% extends 'App.html' %}
+{% block head %}
+    <link rel="stylesheet" href="/static/css/common.css">
+{% endblock %}
+{% block content %}
+    <div class="mdui-container-fluid banner">
+        <div class="title mdui-typo-display-1 mdui-text-color-white">
+            Novel Contract Model Verification Tool
+        </div>
+        <div class="mdui-container-fluid mdui-p-t-5">
+            <div class="mdui-row-gapless mdui-row">
+                <div class="mdui-col-offset-md-4 mdui-col-md-4">
+                    <a class="round-button mdui-btn mdui-color-indigo mdui-text-color-white mdui-ripple mdui-float-left">
+                        Learn more
+                    </a>
+                    <a href="/template/add"
+                       class="round-button mdui-btn mdui-color-light-green mdui-text-color-white mdui-ripple mdui-float-right">
+                        QuickStart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <style>
+        .banner {
+            text-align: center;
+            background-image: url("https://s1.ax1x.com/2020/03/30/GmNyFg.jpg");
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            margin-top: 64px;
+        }
+
+        .title {
+            padding-top: 150px;
+            font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+        }
+
+    </style>
+{% endblock %}

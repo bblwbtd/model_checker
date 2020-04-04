@@ -7,9 +7,9 @@ compensation = 1000
 
 
 class FlightContractValidator(Validator):
-    def validate(self, model: MagicModel):
+    def validate(self, model: MagicTemplate):
         if model.fsm.is_final():
-            values = model.values
+            values = model.variable
             correct_case = [
                 {
                     'a': 0,
@@ -34,7 +34,7 @@ class FlightContractValidator(Validator):
             raise Exception("error detected!")
 
 
-class FlightContractModel(MagicModel):
+class FlightContractModel(MagicTemplate):
 
     def initial_variable(self) -> dict:
         return {
@@ -75,11 +75,11 @@ class FlightContractModel(MagicModel):
         ]
 
     def transfer(self, src: str, des: str, value: int):
-        self.values[src] = self.values[src] - value
-        self.values[des] = self.values[des] + value
+        self.variable[src] = self.variable[src] - value
+        self.variable[des] = self.variable[des] + value
 
     def on_finish2(self):
-        self.transfer('s', 'a', 10)
+        self.transfer('s', 'a', 100)
         self.transfer('s', 'b', 1000)
 
     def on_finish1(self):

@@ -1,4 +1,4 @@
 from .Event import Event
+from .MagicTemplate import MagicTemplate
 from .State import State
-from .MagicModel import MagicModel
 from .Validator import Validator
