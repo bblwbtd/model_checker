@@ -11,7 +11,7 @@
         <form>
             <div class="mdui-row mdui-row-gapless">
                 <div class="mdui-p-t-5 mdui-text-color-indigo mdui-typo-display-1">
-                    New Template
+                    {{ title }}
                 </div>
             </div>
             <div class="mdui-row mdui-row-gapless">
@@ -75,6 +75,14 @@
                     Add
                 </button>
             </div>
+            <div class="mdui-row mdui-row-gapless mdui-m-t-3 mdui-m-b-5">
+                <div class="mdui-typo-headline">
+                    Validator
+                </div>
+                <div class="mdui-col-md-5 mdui-m-t-2" id="validator">
+
+                </div>
+            </div>
         </form>
         <div id="new_variable_dialog" class="mdui-dialog" style="overflow: visible; width: auto">
             <div class="mdui-dialog-content" style="overflow: visible">
@@ -126,10 +134,21 @@
                         <input id="new_state_name" class="mdui-textfield-input">
                     </div>
                 </div>
+                <div class="mdui-row">
+                    <label class="mdui-checkbox">
+                        <input type="checkbox" id="is_initial"/>
+                        <i class="mdui-checkbox-icon"></i>
+                        Initial State
+                    </label>
+                    <label class="mdui-checkbox mdui-m-l-3">
+                        <input type="checkbox" id="is_final" value="false"/>
+                        <i class="mdui-checkbox-icon"></i>
+                        Finial State
+                    </label>
+                </div>
                 <div class="mdui-row-2 mdui-valign">
                     <div class="mdui-col mdui-textfield" id="on_enter_state">
-                        <label class="mdui-textfield-label">
-                            Enter state event
+                        Enter state event
                         </label>
                         <div id="on_enter_state_code">
 
@@ -195,6 +214,11 @@
                 </div>
             </div>
         </div>
+        <div class="mdui-btn mdui-fab mdui-fab-fixed mdui-color-green" onclick="submit()">
+            <i class="mdui-icon material-icons mdui-text-color-white">
+                save
+            </i>
+        </div>
     </div>
 {% endblock %}
 {% block script %}
@@ -207,6 +231,7 @@
         let on_enter_state = CodeMirror($('#on_enter_state_code')[0], code_config);
         let on_leave_state = CodeMirror($('#on_leave_state_code')[0], code_config);
         let on_event = CodeMirror($('#on_event')[0], code_config);
+        let validator = CodeMirror($('#validator')[0], code_config);
         let state_name_box = $('#new_state_name');
         let event_name_box = $('#new_event_name');
 
@@ -216,6 +241,10 @@
 
         $('#new_state_dialog').bind('close.mdui.dialog', function () {
             state_name_box.removeAttr("disabled")
+        });
+
+        $('#new_event_dialog').bind('close.mdui.dialog', function () {
+            event_name_box.removeAttr("disabled")
         });
 
         let variables = {};
@@ -262,6 +291,8 @@
         }
 
         let states = {};
+        let is_initial = $('#is_initial');
+        let is_final = $('#is_final');
 
         function add_state() {
             let state_panel = $('#states');
@@ -281,19 +312,30 @@
                             </div>
                             <div class="mdui-card-action">
                                 <div class="mdui-btn" onclick="edit_state('${state_name}')">edit</div>
-                                <div class="mdui-btn" onclick="delete_event('${state_name}')">delete</div>
+                                <div class="mdui-btn" onclick="delete_state('${state_name}')">delete</div>
                             </div>
                         </div>
                     </div>
                 `);
             }
+
             states[state_name] = {
                 state_name: state_name,
                 on_enter_state: on_enter_state.getValue(),
-                on_leave_state: on_leave_state.getValue()
+                on_leave_state: on_leave_state.getValue(),
+                is_initial: is_initial[0].checked,
+                is_final: is_final[0].checked
             };
 
             new_state_dialog.close()
+        }
+
+        function delete_state(state_name) {
+            let element = $(`[statename='${state_name}']`);
+            element.fadeOut(1000, function () {
+                delete states[state_name];
+                element.remove()
+            })
         }
 
 
@@ -329,9 +371,7 @@
 
         let event_panel = $('#events');
         let events = {};
-
         function add_event() {
-
             if (event_name_box.val() === "") {
                 mdui.snackbar('event name can not be empty!');
                 return;
@@ -343,33 +383,33 @@
             }
 
             let element = `
-                    <div class="mdui-card mdui-col" id="event-${state_name_box.val()}">
+                    <div class="mdui-card mdui-col" id="event-${event_name_box.val()}">
                         <div class="mdui-card-content">
-                            <p class="mdui-typo-headline">${state_name_box.val()}</p>
+                            <p class="mdui-typo-headline">${event_name_box.val()}</p>
                             <p>src: ${src.val()}</p>
                             <p>des: ${des.val()}</p>
                         </div>
                         <div class="mdui-card-action">
-                            <div class="mdui-btn" onclick="edit_event('${state_name_box.val()}')">Edit</div>
-                            <div class="mdui-btn" onclick="delete_event('${state_name_box.val()}')">Delete</div>
+                            <div class="mdui-btn" onclick="edit_event('${event_name_box.val()}')">Edit</div>
+                            <div class="mdui-btn" onclick="delete_event('${event_name_box.val()}')">Delete</div>
                         </div>
                     </div>
                 `;
-
-            if (states[state_name_box.val()] !== undefined) {
-                // language=HTML
+            console.log(event_name_box.val());
+            console.log(states[event_name_box.val()]);
+            if (events[event_name_box.val()] === undefined) {
                 event_panel.append(element);
             } else {
-                $('#event-${state_name_box.val()}').replaceWith(element)
+                $(`#event-${event_name_box.val()}`).replaceWith(element)
             }
-
+            console.log(234);
             events[event_name_box.val()] = {
                 event_name: event_name_box.val(),
                 src: src.val(),
                 des: des.val(),
                 on_event: on_event.getValue()
             };
-            new_event_dialog.close()
+            new_event_dialog.close();
         }
 
 
@@ -378,7 +418,9 @@
             let event = events[state_name];
             on_event.val = event.on_event;
             src.val(event.src);
-            des.val(event.val);
+            des.val(event.des);
+            event_name_box.attr("disabled", true);
+            new_event_dialog.open()
         }
 
         function delete_event(event_name) {
@@ -389,6 +431,24 @@
             });
 
         }
+
+        function submit() {
+
+
+            axios.post('/template/add', {
+                states: states,
+                events: events,
+                variables: variables,
+                name: $('#template_name').val(),
+                validator: validator.getValue()
+            }).then(function () {
+                mdui.snackbar("save succeed")
+            });
+        }
+
+        $(function () {
+
+        })
     </script>
 {% endblock %}
 {% block style %}

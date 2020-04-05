@@ -1,0 +1,15 @@
+import unittest
+
+from src.model_checker.MagicTemplate import deserialize
+
+
+class MyTestCase(unittest.TestCase):
+
+    def test_deserialize(self):
+        a = 'gASVFAIAAAAAAACMH3NyYy5tb2RlbF9jaGVja2VyLk1hZ2ljVGVtcGxhdGWUjA1NYWdpY1RlbXBsYXRllJOUKYGUfZQojAh2YXJpYWJsZZR9lIwBdJRLAHOMCXZhbGlkYXRvcpSMEXNyYy5zZXJ2ZXIuUGFyc2VylIwQZnVuY3Rpb25fd3JhcHBlcpSTlCmBlH2UKIwEY29kZZSMAJSMCXZhcmlhYmxlc5RoBnVijANmc22UjCRzcmMubW9kZWxfY2hlY2tlci5GaW5pdGVTdGF0ZU1hY2hpbmWUjBJGaW5pdGVTdGF0ZU1hY2hpbmWUk5QpgZR9lCiMHl9GaW5pdGVTdGF0ZU1hY2hpbmVfX2V2ZW50X21hcJR9lIweX0Zpbml0ZVN0YXRlTWFjaGluZV9fc3RhdGVfbWFwlH2UKIwBMZSMF3NyYy5tb2RlbF9jaGVja2VyLlN0YXRllIwFU3RhdGWUk5QpgZR9lCiMCGlzX2ZpbmFslImMCmlzX2luaXRpYWyUiIwEbmFtZZRoG4wVX2VudGVyX3N0YXRlX2NhbGxiYWNrlGgPjBVfbGVhdmVfc3RhdGVfY2FsbGJhY2uUaA+MB2luYm91bmSUfZSMCG91dGJvdW5klH2UdWKMATKUaB4pgZR9lChoIYhoIoloI2gqaCRoD2glaA9oJn2UaCh9lHVidYwNY3VycmVudF9zdGF0ZZRoH3VidWIu'
+        template = deserialize(a)
+        print(template.variable)
+
+
+if __name__ == '__main__':
+    unittest.main()

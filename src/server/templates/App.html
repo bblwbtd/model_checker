@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/css/mdui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/mdui/0.4.3/css/mdui.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
-    <script src="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
+    <script src="https://cdnjs.loli.net/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>Model Verification Demonstration</title>
     {% block head %}
     {% endblock %}
@@ -17,7 +18,6 @@
                 <i class="mdui-icon material-icons mdui-text-color-white">menu</i>
             </a>
             <a href="/" class="mdui-typo-headline mdui-text-color-white">Model Verification Demonstration</a>
-
         </div>
     </header>
 
@@ -35,9 +35,9 @@
                 <i class="mdui-list-item-icon mdui-icon material-icons">
                     check
                 </i>
-                <div class="mdui-list-item-content">
+                <a class="mdui-list-item-content" href="/model/">
                     Model Verification
-                </div>
+                </a>
             </li>
             <li class="mdui-list-item mdui-ripple">
                 <i class="mdui-list-item-icon mdui-icon material-icons">
@@ -51,9 +51,8 @@
     </div>
     {% block content %}
     {% endblock %}
+
 </div>
-
-
 </body>
 
 {% block script %}

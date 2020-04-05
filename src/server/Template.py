@@ -1,16 +1,13 @@
-import json
-
 from flask import Blueprint, request, render_template
 
-from src.database import Template, MagicTemplate
-from src.server.Parser import parse_validator, parse_state, parse_event
+from src.database import Template
 
 template = Blueprint('template', __name__, url_prefix='/template')
 
 
 @template.route('/add', methods=['GET'])
 def get_page():
-    return render_template('CreateTemplate.html')
+    return render_template('CreateTemplate.html', title="New Template")
 
 
 @template.route("/all", methods=['GET'])
@@ -20,19 +17,18 @@ def get_all_template():
 
 @template.route("/add", methods=['POST'])
 def add_template():
-    body = json.load(request.data)
-    variable = body.get('variable', {})
+    body = request.json
 
     states = body.get('states', None)
     events = body.get('events', None)
+    name = body.get('name', '')
 
-    state_instances = [parse_state(i, variable) for i in events]
-    event_instances = [parse_event(i, variable) for i in states]
+    if name == "" or states is None or events is None:
+        return "Missing parameters can not be empty", 400
 
-    validator = parse_validator(body.get('validator', ''), variable)
-
-    magic_template = MagicTemplate(validator, variable, state_instances, event_instances)
-    Template(content=magic_template.serialize()).save()
+    t = Template(name=name, content=body)
+    t.save()
+    return "success", 200
 
 
 @template.route("/remove", methods=['POST'])

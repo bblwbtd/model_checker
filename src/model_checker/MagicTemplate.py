@@ -1,5 +1,3 @@
-import base64
-import pickle
 from copy import deepcopy
 from typing import Iterable
 
@@ -46,31 +44,4 @@ class MagicTemplate:
     def __take_snapshot(self):
         return Snapshot(self.fsm.current_state, deepcopy(self.variable))
 
-    def serialize(self) -> str:
-        return str(base64.b64encode(pickle.dumps(self)), encoding='utf-8')
 
-    # @abstractmethod
-    # def initial_state(self) -> List[State] or List[Iterable]:
-    #     """
-    #     初始化所有状态
-    #     """
-    #     raise NotImplementedError()
-    #
-    # @abstractmethod
-    # def initial_event(self) -> List[Event] or List[Iterable]:
-    #     """
-    #     初始化所有事件
-    #     """
-    #     raise NotImplementedError()
-    #
-    # @abstractmethod
-    # def initial_variable(self) -> dict:
-    #     """
-    #     定义模型相关的变量，最好不要直接在self直接定义变量。因为模型检测的时候不会复制self中的变量
-    #     :return:
-    #     """
-    #     raise NotImplementedError()
-
-
-def deserialize(data: str) -> MagicTemplate:
-    return pickle.loads(base64.b64decode(data))
