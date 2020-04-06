@@ -26,3 +26,6 @@ class State:
 
     def add_outbound(self, event: Event):
         self.outbound[event.name] = event
+
+    def __str__(self):
+        return self.name

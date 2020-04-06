@@ -1,9 +1,189 @@
 {% extends 'App.html' %}
 {% block content %}
-    <div class="mdui-row">
+    <div style="margin-top: 64px" class="mdui-p-l-5">
 
+        <div class="mdui-row mdui-row-gapless">
+            <div class="mdui-p-t-5 mdui-text-color-indigo mdui-typo-display-1">
+                Model Verification
+            </div>
+        </div>
+        <div class="mdui-row mdui-m-t-3">
+            <label class="mdui-textfield-label" for="template_select">Template Name</label>
+            <select id="template_select" class=" mdui-select" mdui-select>
+                {% for template in templates %}
+                    <option value='{{ template.id }}'>{{ template.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mdui-row mdui-m-t-3">
+            <div class="mdui-typo-headline">
+                Variables
+            </div>
+            <div class="mdui-col-md-6 mdui-m-t-3 mdui-table-fluid">
+                <table class="mdui-table">
+                    <thead>
+                    <tr>
+                        <th>Variable name</th>
+                        <th>Variable type</th>
+                        <th>Initial value</th>
+                        <th>Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody id="variables_body">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mdui-row-md-5 mdui-m-t-3">
+            <div class="mdui-typo-headline">
+                States
+            </div>
+            <div id="states_panel" class="mdui-m-t-3">
+
+            </div>
+        </div>
+        <div class="mdui-row-md-5 mdui-m-t-3">
+            <div class="mdui-typo-headline">
+                Events
+            </div>
+            <div id="events_panel" class="mdui-m-t-3">
+
+            </div>
+        </div>
+
+        <div id="edit_value_dialog" class="mdui-dialog">
+            <div class="mdui-dialog-title">Edit Value</div>
+            <div class="mdui-dialog-content">
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label" for="variable_value" id="variable_name"></label>
+                    <input id="variable_value" class="mdui-textfield-input">
+                </div>
+            </div>
+            <div class="mdui-dialog-actions">
+                <div class="mdui-btn round-button mdui-text-color-white mdui-color-green" onclick="update_value()">
+                    Confirm
+                </div>
+            </div>
+        </div>
+
+        <div class="mdui-btn mdui-fab mdui-fab-fixed mdui-color-green" onclick="submit()">
+            <i class="mdui-icon material-icons mdui-text-color-white">
+                play_arrow
+            </i>
+        </div>
     </div>
+
 {% endblock %}
 {% block script %}
-    <script></script>
+    <script>
+        let variables = {};
+        let states = {};
+        let events = {};
+        let validator = '';
+        $('#template_select').bind('closed.mdui.select', function () {
+            let element = $(this);
+            axios.get(`/template/get?id=${element.val()}`).then(function (response) {
+                let data = JSON.parse(response.data);
+                console.log(data);
+                variables = data.variables;
+                states = data.states;
+                events = data.events;
+                validator = data.validator;
+                update_variables();
+                update_states();
+                update_events();
+            }).catch(err => {
+                console.log(err)
+            })
+        });
+
+        let variables_body = $('#variables_body');
+
+        function update_variables() {
+            variables_body.empty();
+            for (let key in variables) {
+                let variable = variables[key];
+                variables_body.append(`
+                    <tr>
+                        <td>${variable.variable_name}</td>
+                        <td>${variable.type}</td>
+                        <td>${variable.default_value}</td>
+                        <td onclick="open_edit_value_dialog('${key}')">
+                            <div class="mdui-btn mdui-btn-icon">
+                                <i class="mdui-icon material-icons">edit</i>
+                            </div>
+                        </td>
+                    </tr>
+                `)
+            }
+        }
+
+        let states_panel = $('#states_panel');
+
+        function update_states() {
+            states_panel.empty();
+            for (let key in states) {
+                let state = states[key];
+                states_panel.append(`
+                    <div class="mdui-card mdui-col">
+                        <div class="mdui-card-content">
+                            <div class="mdui-typo-title">
+                                ${state.state_name}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+        }
+
+        let event_panel = $('#events_panel');
+
+        function update_events() {
+            event_panel.empty();
+            for (let key in events) {
+                let event = events[key];
+                event_panel.append(`
+                    <div class="mdui-card mdui-col">
+                        <div class="mdui-card-content">
+                            <div class="mdui-typo-title">
+                                ${event.event_name}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+        }
+
+
+        let edit_value_dialog = new mdui.Dialog('#edit_value_dialog');
+        let variable_name = $('#variable_name');
+        let variable_value = $('#variable_value');
+
+        function open_edit_value_dialog(name) {
+            let variable = variables[name];
+            variable_name.text(variable.variable_name);
+            variable_value.val(variable.default_avlue);
+            edit_value_dialog.open()
+        }
+
+        function update_value() {
+            let variable = variables[variable_name.text()];
+            variable.default_value = variable_value.val();
+            update_variables();
+            edit_value_dialog.close()
+        }
+
+        function submit() {
+            axios.post('/model/check', {
+                variables: variables,
+                states: states,
+                events: events,
+                validator: validator
+            }).then(data => {
+                mdui.snackbar(data)
+            })
+        }
+
+    </script>
 {% endblock %}

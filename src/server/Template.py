@@ -1,4 +1,6 @@
-from flask import Blueprint, request, render_template
+import json
+
+from flask import Blueprint, request, render_template, jsonify
 
 from src.database import Template
 
@@ -26,7 +28,7 @@ def add_template():
     if name == "" or states is None or events is None:
         return "Missing parameters can not be empty", 400
 
-    t = Template(name=name, content=body)
+    t = Template(name=name, content=json.dumps(body))
     t.save()
     return "success", 200
 
@@ -34,3 +36,13 @@ def add_template():
 @template.route("/remove", methods=['POST'])
 def remove_template():
     pass
+
+
+@template.route("/get", methods=['GET'])
+def get_template():
+    id = request.args.get("id", None)
+    if not id:
+        return "unknown id", 400
+
+    template = Template.get(id=id)
+    return jsonify(template.content)

@@ -25,3 +25,6 @@ class Event:
 
     def keys(self):
         return 'name', 'src', 'des'
+
+    def __str__(self):
+        return self.name
