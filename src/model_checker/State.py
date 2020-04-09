@@ -13,13 +13,13 @@ class State:
         self.inbound = {}
         self.outbound = {}
 
-    def on_enter_state(self):
+    def on_enter_state(self, model):
         if self._enter_state_callback is not None:
-            self._enter_state_callback()
+            self._enter_state_callback(model)
 
-    def on_leave_state(self):
+    def on_leave_state(self, model):
         if self._leave_state_callback is not None:
-            self._leave_state_callback()
+            self._leave_state_callback(model)
 
     def add_inbound(self, event: Event):
         self.inbound[event.name] = event

@@ -36,15 +36,15 @@ class FiniteStateMachine:
     def is_final(self) -> bool:
         return self.current_state.is_final
 
-    def trigger_event(self, event: str or Event):
+    def trigger_event(self, event: str or Event, model):
         if type(event) == str:
             event = self.__event_map[event]
         if event.name not in self.current_state.outbound:
             raise Exception(f"Can not incur {event.name}")
-        self.current_state.on_leave_state()
+        self.current_state.on_leave_state(model)
         self.current_state = self.__state_map[event.des]
-        event.on_event()
-        self.current_state.on_enter_state()
+        event.on_event(model)
+        self.current_state.on_enter_state(model)
 
     def get_state(self, name: str) -> State:
         return self.__state_map[name]

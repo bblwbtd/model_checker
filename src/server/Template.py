@@ -12,9 +12,24 @@ def get_page():
     return render_template('CreateTemplate.html', title="New Template")
 
 
-@template.route("/all", methods=['GET'])
-def get_all_template():
-    pass
+@template.route('/update', methods=['POST'])
+def update_template():
+    t = Template(id=request.json.get('id', -1))
+    t.content = json.dumps(request.json)
+    t.save()
+    return 'success'
+
+
+@template.route('/edit', methods=['GET'])
+def edit_template():
+    templates = [
+        {
+            'id': t.id,
+            'name': t.name
+        }
+        for t in Template.select()
+    ]
+    return render_template('EditTemplate.html', templates=templates, title='Edit Template')
 
 
 @template.route("/add", methods=['POST'])

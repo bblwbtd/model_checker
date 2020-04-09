@@ -1,17 +1,13 @@
 class Event:
-    def __init__(self, name: str, src, des, on_event=None, variable=None):
-        if variable is None:
-            self.variable = {}
-        else:
-            self.variable = variable
+    def __init__(self, name: str, src, des, on_event=None):
         self._on_event_callback = on_event
         self.name = name
         self.src = src
         self.des = des
 
-    def on_event(self):
+    def on_event(self, model):
         if self._on_event_callback is not None:
-            self._on_event_callback(self.variable)
+            self._on_event_callback(model)
 
     def __dict__(self):
         return {

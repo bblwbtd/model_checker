@@ -9,20 +9,19 @@ from ..server.Parser import function_wrapper
 
 
 class MagicTemplate:
-    def __init__(self, validator, variable: dict, states: Iterable[State], events: Iterable[Event]):
-        self.variable = variable
-        self.validator = validator
+    def __init__(self, validator, variables: dict, states: Iterable[State], events: Iterable[Event]):
+        self.variables = variables
+        self.validator = function_wrapper(validator)
         self.fsm = FiniteStateMachine(events, states)
         self.errors = []
 
-    def dfs_check(self, max_depth: int, variables: dict):
+    def dfs_check(self, max_depth: int):
         history = [self.fsm.current_state]
-        self.variable = variables
         self.__dfs_step(max_depth, history)
         return self.errors
 
     def __restore(self, snapshot: Snapshot):
-        self.variable = snapshot.values
+        self.variables = snapshot.values
         self.fsm.current_state = snapshot.state
 
     def __dfs_step(self, max_depth: int, history: list):
@@ -31,9 +30,9 @@ class MagicTemplate:
         save = self.__take_snapshot()
         history.append(self.fsm.current_state)
         for event in self.fsm.current_state.outbound.values():
-            self.fsm.trigger_event(event)
+            self.fsm.trigger_event(event, self)
             try:
-                function_wrapper(self.validator, self.variable)()
+                self.validator(self)
             except Exception as e:
                 self.errors.append({
                     'error': str(e),
@@ -46,4 +45,4 @@ class MagicTemplate:
             self.__restore(save)
 
     def __take_snapshot(self):
-        return Snapshot(self.fsm.current_state, deepcopy(self.variable))
+        return Snapshot(self.fsm.current_state, deepcopy(self.variables))

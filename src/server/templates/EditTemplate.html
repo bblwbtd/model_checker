@@ -14,11 +14,13 @@
                     {{ title }}
                 </div>
             </div>
-            <div class="mdui-row mdui-row-gapless">
-                <div class="mdui-textfield mdui-col-md-4">
-                    <label class="mdui-textfield-label">template</label>
-                    <select id="template_name">
-
+            <div class="mdui-row mdui-row-gapless" style="overflow: visible">
+                <div class="mdui-textfield mdui-col-md-4" style="overflow: visible">
+                    <label class="mdui-textfield-label" for="template_name">Template name</label>
+                    <select id="template_name" class="mdui-select" mdui-select>
+                        {% for i in templates %}
+                            <option value="{{ i.id }}">{{ i.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -241,12 +243,63 @@
         const new_event_dialog = new mdui.Dialog('#new_event_dialog');
 
         $('#new_state_dialog').bind('close.mdui.dialog', function () {
-            state_name_box.removeAttr("disabled")
+            state_name_box.removeAttr("disabled");
+            is_final.removeAttr('checked');
+            is_initial.removeAttr('checked');
         });
 
         $('#new_event_dialog').bind('close.mdui.dialog', function () {
             event_name_box.removeAttr("disabled")
         });
+
+        let current_template = $('#template_name');
+
+        current_template.bind('closed.mdui.select', function () {
+            load_template(current_template.val())
+        });
+
+        function load_template(id) {
+            axios.get(`/template/get?id=${id}`)
+                .then(function (response) {
+                    let data = JSON.parse(response.data);
+
+                    for (let key in data.states) {
+                        let state = data.states[key];
+                        append_state(state['state_name']);
+                        states[state['state_name']] = {
+                            state_name: state['state_name'],
+                            on_enter_state: state['on_enter_state'],
+                            on_leave_state: state['on_leave_state'],
+                            is_initial: state['is_initial'],
+                            is_final: state['is_final']
+                        };
+                    }
+
+                    for (let key in data.events) {
+                        let event = data.events[key];
+                        append_event(event['event_name'], event['src'], event['des']);
+                        events[event['event_name']] = {
+                            event_name: event['event_name'],
+                            src: event['src'],
+                            des: event['des'],
+                            on_event: event['on_event']
+                        };
+                    }
+
+                    for (let key in data.variables) {
+                        let variable = data.variables[key];
+                        append_variable(variable['variable_name'], variable['type'], variable['default_value']);
+                        variables[variable['variable_name']] = {
+                            variable_name: variable['variable_name'],
+                            type: variable['type'],
+                            default_value: variable['default_value']
+                        };
+                    }
+
+                    validator.val = data.validator
+                })
+
+        }
 
         let variables = {};
 
@@ -260,19 +313,7 @@
             let default_value = $('#default_value').val();
             let is_exist = $(`[variable_name=${name}]`).val() !== undefined;
             if (!is_exist) {
-                // language=HTML
-                variable_table.append(`
-                    <tr variable_name=${name}>
-                        <td>${name}</td>
-                        <td>${type}</td>
-                        <td>${default_value}</td>
-                        <td onclick="remove_variable(${name})">
-                            <div class="mdui-btn mdui-btn-icon">
-                                <i class="mdui-icon material-icons">delete</i>
-                            </div>
-                        </td>
-                    <tr>
-                    `);
+                append_variable(name, type, default_value);
                 variables[name] = {
                     variable_name: name,
                     type: type,
@@ -286,6 +327,23 @@
             }
         }
 
+        function append_variable(name, type, default_value) {
+            // language=HTML
+            variable_table.append(`
+                <tr variable_name=${name}>
+                    <td>${name}</td>
+                    <td>${type}</td>
+                    <td>${default_value}</td>
+                    <td onclick="remove_variable(${name})">
+                        <div class="mdui-btn mdui-btn-icon">
+                            <i class="mdui-icon material-icons">delete</i>
+                        </div>
+                    </td>
+                <tr>
+                `);
+
+        }
+
         function remove_variable(name) {
             $(`[variable_name=${name}]`).remove();
             delete variables[name]
@@ -294,9 +352,9 @@
         let states = {};
         let is_initial = $('#is_initial');
         let is_final = $('#is_final');
+        let state_panel = $('#states');
 
         function add_state() {
-            let state_panel = $('#states');
             let state_name = state_name_box.val();
             if (state_name === "") {
                 mdui.snackbar("The state name can not be empty!");
@@ -305,7 +363,22 @@
             let is_exist = $(`[state_name=${state_name}]`).val() !== undefined;
             if (!is_exist) {
                 // language=HTML
-                state_panel.append(`
+                append_state(state_name)
+            }
+
+            states[state_name] = {
+                state_name: state_name,
+                on_enter_state: on_enter_state.getValue(),
+                on_leave_state: on_leave_state.getValue(),
+                is_initial: is_initial[0].checked,
+                is_final: is_final[0].checked
+            };
+
+            new_state_dialog.close()
+        }
+
+        function append_state(state_name) {
+            state_panel.append(`
                     <div class="mdui-col mdui-p-r-3 mdui-m-t-1" state_name='${state_name}'>
                         <div class="mdui-card">
                             <div class="mdui-card-content">
@@ -318,17 +391,6 @@
                         </div>
                     </div>
                 `);
-            }
-
-            states[state_name] = {
-                state_name: state_name,
-                on_enter_state: on_enter_state.getValue(),
-                on_leave_state: on_leave_state.getValue(),
-                is_initial: is_initial[0].checked,
-                is_final: is_final[0].checked
-            };
-
-            new_state_dialog.close()
         }
 
         function delete_state(state_name) {
@@ -350,8 +412,16 @@
 
         function edit_state(state_name) {
             let state = states[state_name];
+            console.log(state);
             state_name_box.val(state_name);
             state_name_box.attr('disabled', true);
+            if (state.is_initial) {
+                is_initial.attr('checked', true)
+            }
+
+            if (state.is_final) {
+                is_final.attr('checked', true);
+            }
             on_enter_state.val = (state.on_enter_state);
             on_leave_state.val = (state.on_leave_state);
             new_state_dialog.open();
@@ -383,28 +453,7 @@
                 mdui.snackbar('src or des can not be empty!');
                 return
             }
-
-            let element = `
-                    <div class="mdui-card mdui-col" id="event-${event_name_box.val()}">
-                        <div class="mdui-card-content">
-                            <p class="mdui-typo-headline">${event_name_box.val()}</p>
-                            <p>src: ${src.val()}</p>
-                            <p>des: ${des.val()}</p>
-                        </div>
-                        <div class="mdui-card-action">
-                            <div class="mdui-btn" onclick="edit_event('${event_name_box.val()}')">Edit</div>
-                            <div class="mdui-btn" onclick="delete_event('${event_name_box.val()}')">Delete</div>
-                        </div>
-                    </div>
-                `;
-            console.log(event_name_box.val());
-            console.log(states[event_name_box.val()]);
-            if (events[event_name_box.val()] === undefined) {
-                event_panel.append(element);
-            } else {
-                $(`#event-${event_name_box.val()}`).replaceWith(element)
-            }
-            console.log(234);
+            append_event(event_name_box.val(), src.val(), des.val());
             events[event_name_box.val()] = {
                 event_name: event_name_box.val(),
                 src: src.val(),
@@ -414,6 +463,26 @@
             new_event_dialog.close();
         }
 
+        function append_event(event_name, src, des) {
+            let element = `
+                    <div class="mdui-card mdui-col" id="event-${event_name}">
+                        <div class="mdui-card-content">
+                            <p class="mdui-typo-headline">${event_name}</p>
+                            <p>src: ${src}</p>
+                            <p>des: ${des}</p>
+                        </div>
+                        <div class="mdui-card-action">
+                            <div class="mdui-btn" onclick="edit_event('${event_name}')">Edit</div>
+                            <div class="mdui-btn" onclick="delete_event('${event_name}')">Delete</div>
+                        </div>
+                    </div>
+                `;
+            if (events[event_name_box.val()] === undefined) {
+                event_panel.append(element);
+            } else {
+                $(`#event-${event_name_box.val()}`).replaceWith(element)
+            }
+        }
 
         function edit_event(state_name) {
             update_states();
@@ -421,6 +490,7 @@
             on_event.val = event.on_event;
             src.val(event.src);
             des.val(event.des);
+            event_name_box.val(state_name);
             event_name_box.attr("disabled", true);
             new_event_dialog.open()
         }
@@ -435,22 +505,17 @@
         }
 
         function submit() {
-
-
-            axios.post('/template/add', {
+            axios.post('/template/update', {
                 states: states,
                 events: events,
                 variables: variables,
-                name: $('#template_name').val(),
+                id: current_template.val(),
                 validator: validator.getValue()
             }).then(function () {
                 mdui.snackbar("save succeed")
             });
         }
 
-        $(function () {
-
-        })
     </script>
 {% endblock %}
 {% block style %}
