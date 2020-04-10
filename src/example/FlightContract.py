@@ -9,7 +9,7 @@ compensation = 1000
 class FlightContractValidator(Validator):
     def validate(self, model: MagicTemplate):
         if model.fsm.is_final():
-            values = model.variable
+            values = model.variables
             correct_case = [
                 {
                     'a': 0,
@@ -64,10 +64,10 @@ class FlightContractModel(MagicTemplate):
             Event("timeout1", "c3bas,c4act,c5act,c6act,c7act,c8act", "c3vio, c4exp", ),
             Event("buy_ticket", "c3bas,c4act,c5act,c6act,c7act,c8act", "c3sat, c4bas"),
             Event("timeout2", "c3sat, c4bas", "c4vio"),
-            Event("deposit(b,s,10)", "c3sat, c4bas", "c4sat, c5bas", self.transfer, ('b', 's', 10)),
+            Event("deposit(b,s,10)", "c3sat, c4bas", "c4sat, c5bas", self.transfer),
             Event("timeout3", "c4sat, c5bas", "c5vio, c6bas"),
-            Event("refund", "c5vio, c6bas", "v6sat", self.transfer, ('s', 'b', 10)),
-            Event("deposit(a,s,1000)", "c4sat, c5bas", "c5sat", self.transfer, ('a', 's', 1000)),
+            Event("refund", "c5vio, c6bas", "v6sat", self.transfer),
+            Event("deposit(a,s,1000)", "c4sat, c5bas", "c5sat", self.transfer),
             Event("flight_delay", "c5sat", "c7bas"),
             Event("on_time", "c5sat", "c8bas"),
             Event("transfer(s,a,1000), compensate(s, a, 1000)", "c8bas", "c8sat", self.on_finish1),
@@ -75,8 +75,8 @@ class FlightContractModel(MagicTemplate):
         ]
 
     def transfer(self, src: str, des: str, value: int):
-        self.variable[src] = self.variable[src] - value
-        self.variable[des] = self.variable[des] + value
+        self.variables[src] = self.variables[src] - value
+        self.variables[des] = self.variables[des] + value
 
     def on_finish2(self):
         self.transfer('s', 'a', 100)
