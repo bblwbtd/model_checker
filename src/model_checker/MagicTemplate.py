@@ -16,8 +16,7 @@ class MagicTemplate:
         self.errors = []
 
     def dfs_check(self, max_depth: int):
-        history = [self.fsm.current_state]
-        self.__dfs_step(max_depth, history)
+        self.__dfs_step(max_depth, [])
         return self.errors
 
     def __restore(self, snapshot: Snapshot):

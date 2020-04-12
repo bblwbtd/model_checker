@@ -72,6 +72,14 @@
                 play_arrow
             </i>
         </div>
+
+        <div id="report" class="mdui-dialog">
+            <div class="mdui-dialog-title">Verification Report</div>
+            <div class="mdui-dialog-content mdui-m-b-5">
+                <div id="comment" class="mdui-typo-body"></div>
+                <div class="mdui-row-md-5 mdui-m-t-5" id="errors"></div>
+            </div>
+        </div>
     </div>
 
 {% endblock %}
@@ -181,8 +189,39 @@
                 events: events,
                 validator: validator
             }).then(data => {
-                mdui.snackbar(data)
+                show_report(data.data)
             })
+        }
+
+        let report_dialog = new mdui.Dialog('#report')
+        let comment = $('#comment')
+
+        function show_report(report_data) {
+            if (report_data.length === 0) {
+                comment.text('Great, everything is fine!');
+                return;
+            }
+            comment.text('Oops, there are something wrong. Here is what i found.')
+            append_errors(report_data)
+            report_dialog.open()
+        }
+
+        let errors_panel = $('#errors')
+
+        function append_errors(errors) {
+            console.log(errors)
+            for (let i = 0; i < errors.length; i++) {
+                let error = errors[i]
+                errors_panel.append(`
+                <div class="mdui-col mdui-card" >
+                    <div class="mdui-card-primary">
+                        <div class="mdui-typo-body">
+                            ${error['error']}
+                        </div>
+                    </div>
+                </div>
+                `)
+            }
         }
 
     </script>

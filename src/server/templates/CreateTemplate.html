@@ -359,8 +359,10 @@
             if (state.is_final) {
                 is_final.attr('checked', true);
             }
-            on_enter_state.val = (state.on_enter_state);
-            on_leave_state.val = (state.on_leave_state);
+            on_enter_state.setValue(state.on_enter_state)
+            on_leave_state.setValue(state.on_leave_state)
+            on_enter_state.refresh();
+            on_leave_state.refresh();
             new_state_dialog.open();
         }
 
@@ -424,7 +426,8 @@
         function edit_event(state_name) {
             update_states();
             let event = events[state_name];
-            on_event.val = event.on_event;
+            on_event.setValue(event.on_event);
+            on_event.refresh();
             src.val(event.src);
             des.val(event.des);
             event_name_box.val(state_name);
